@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>Lovie ✦</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+body{background:#050508;min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,sans-serif;}
+.no-scrollbar::-webkit-scrollbar{display:none;}
+.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.5;}}
+@keyframes bounce{0%,100%{transform:translateY(-25%);animation-timing-function:cubic-bezier(.8,0,1,1);}50%{transform:none;animation-timing-function:cubic-bezier(0,0,.2,1);}}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+@keyframes glow{0%,100%{box-shadow:0 0 20px rgba(206,147,216,0.4);}50%{box-shadow:0 0 40px rgba(206,147,216,0.8);}}
+.animate-pulse{animation:pulse 2s cubic-bezier(.4,0,.6,1) infinite;}
+.animate-bounce{animation:bounce 1s infinite;}
+.animate-float{animation:float 3s ease-in-out infinite;}
+.animate-glow{animation:glow 2s ease-in-out infinite;}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useRef} = React;
+
+const MOODS=[
+  {id:"chill",label:"Chill",emoji:"🌊",color:"#4FC3F7",bg:"#0c1a2e",desc:"Calm content & relaxing vibes",content:"Lo-fi music, aesthetic rooms, nature videos"},
+  {id:"fashion",label:"Fashion",emoji:"✨",color:"#F06292",bg:"#2e0c1a",desc:"Style inspo & outfit ideas",content:"OOTD posts, fashion reels, style tips"},
+  {id:"study",label:"Study",emoji:"📚",color:"#81C784",bg:"#0c2e1a",desc:"Focus & productivity content",content:"Study vlogs, notes inspo, cafe vibes"},
+  {id:"motivation",label:"Motivation",emoji:"🔥",color:"#FFB74D",bg:"#2e1a0c",desc:"Hustle goals & inspiration",content:"Success stories, gym content, goal setting"},
+  {id:"latenight",label:"Late Night",emoji:"🌙",color:"#CE93D8",bg:"#1a0c2e",desc:"Midnight thoughts & deep content",content:"Deep talks, night drives, late night vibes"},
+  {id:"lowkey",label:"Low Key",emoji:"🎧",color:"#90CAF9",bg:"#0c1a2e",desc:"Solo vibes & me time",content:"Cozy content, self care, quiet moments"},
+  {id:"funny",label:"Funny",emoji:"😂",color:"#FFF176",bg:"#2e2e0c",desc:"Memes, laughs & good times",content:"Comedy reels, memes, funny moments"},
+  {id:"romantic",label:"Romantic",emoji:"🌹",color:"#F48FB1",bg:"#2e0c1a",desc:"Love, aesthetics & soft content",content:"Couple content, aesthetic edits, love stories"},
+];
+
+const POSTS=[
+  {id:1,user:"aurora.vibe",avatar:"https://i.pravatar.cc/150?img=47",aura:9842,caption:"soft girl era loading... ✨ AI styled this whole look",likes:12400,comments:847,saves:2100,reposts:340,gradient:"linear-gradient(135deg,#ec4899,#f43f5e)",tag:"#SoftAesthetic",img:"https://images.unsplash.com/photo-1483985988355-763728e1935b?w=400&q=80"},
+  {id:2,user:"neon.codex",avatar:"https://i.pravatar.cc/150?img=12",aura:7231,caption:"3am grind hits different when your AI drops weekly analytics 📊",likes:8900,comments:612,saves:1800,reposts:290,gradient:"linear-gradient(135deg,#7c3aed,#4f46e5)",tag:"#CreatorMode",img:"https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=400&q=80"},
+  {id:3,user:"luna.dreamer",avatar:"https://i.pravatar.cc/150?img=32",aura:11200,caption:"voice story from last night — feeling everything at once 🎙️",likes:15600,comments:1203,saves:3200,reposts:580,gradient:"linear-gradient(135deg,#7e22ce,#1d4ed8)",tag:"#VoiceStory",img:"https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=400&q=80"},
+  {id:4,user:"prism.girl",avatar:"https://i.pravatar.cc/150?img=25",aura:6540,caption:"virtual room tour 🛁 come hang? Study cafe is open 24/7",likes:9300,comments:521,saves:1400,reposts:210,gradient:"linear-gradient(135deg,#0891b2,#0d9488)",tag:"#VirtualRoom",img:"https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&q=80"},
+];
+
+const REELS=[
+  {user:"aurora.vibe",avatar:"https://i.pravatar.cc/150?img=47",caption:"POV: AI styled your whole aesthetic ✨",likes:"24K",comments:"843",saves:"2.1K",reposts:"340",tag:"#FashionAI",bg:"linear-gradient(to bottom,#9d174d,#db2777,#a855f7)",img:"https://images.unsplash.com/photo-1483985988355-763728e1935b?w=400&q=80"},
+  {user:"neon.codex",avatar:"https://i.pravatar.cc/150?img=12",caption:"3AM productivity hits different 🔥",likes:"18K",comments:"612",saves:"1.8K",reposts:"290",tag:"#LateNightGrind",bg:"linear-gradient(to bottom,#312e81,#4f46e5,#2563eb)",img:"https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=400&q=80"},
+  {user:"luna.dreamer",avatar:"https://i.pravatar.cc/150?img=32",caption:"voice story: when everything feels heavy 🎙️",likes:"31K",comments:"1.2K",saves:"3.2K",reposts:"580",tag:"#VoiceStory",bg:"linear-gradient(to bottom,#581c87,#7c3aed,#4338ca)",img:"https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=400&q=80"},
+];
+
+const EXPLORE_ITEMS=[
+  {label:"FashionAI",emoji:"👗",bg:"linear-gradient(135deg,#ec4899,#a855f7)",large:true,members:"12K exploring"},
+  {label:"GlowUp",emoji:"✨",bg:"linear-gradient(135deg,#f59e0b,#ef4444)",members:"8.4K exploring"},
+  {label:"StudyCafe",emoji:"☕",bg:"linear-gradient(135deg,#10b981,#06b6d4)",members:"6.2K exploring"},
+  {label:"LateNight",emoji:"🌙",bg:"linear-gradient(135deg,#6366f1,#7c3aed)",medium:true,members:"9.1K exploring"},
+  {label:"VibeMatch",emoji:"💫",bg:"linear-gradient(135deg,#f43f5e,#ec4899)",members:"5.7K exploring"},
+  {label:"MusicLounge",emoji:"🎵",bg:"linear-gradient(135deg,#3b82f6,#06b6d4)",medium:true,members:"7.3K exploring"},
+  {label:"AuraRising",emoji:"🔮",bg:"linear-gradient(135deg,#7c3aed,#4c1d95)",large:true,members:"14K exploring"},
+  {label:"Collab",emoji:"🎬",bg:"linear-gradient(135deg,#ef4444,#f43f5e)",members:"4.8K exploring"},
+];
+
+const CHATS=[
+  {id:1,user:"aurora.vibe",avatar:"https://i.pravatar.cc/150?img=47",msg:"omg your aura score is INSANE 🔮",time:"2m",unread:3,online:true,note:"feeling aesthetic rn ✨",song:"Espresso - Sabrina Carpenter"},
+  {id:2,user:"neon.codex",avatar:"https://i.pravatar.cc/150?img=12",msg:"collab reel? I have an idea 🎬",time:"11m",unread:1,online:true,note:"coding at 3am 💻",song:""},
+  {id:3,user:"luna.dreamer",avatar:"https://i.pravatar.cc/150?img=32",msg:"that voice story made me cry 🥹",time:"1h",unread:0,online:false,note:"",song:""},
+  {id:4,user:"Lovie AI",avatar:"🔮",msg:"Your engagement is up 34% this week!",time:"3h",unread:2,online:true,note:"",song:""},
+];
+
+const ONBOARDING=[
+  {title:"Your universe,\nyour vibe.",sub:"Lovie is where creators feel everything — and get rewarded for it.",emoji:"🌌",color:"#CE93D8"},
+  {title:"AI that actually\ngets you.",sub:"Captions, content calendars, growth advice — on demand.",emoji:"🔮",color:"#81C784"},
+  {title:"Choose your\nmood, anytime.",sub:"Your feed shifts with your energy. Pure emotional resonance.",emoji:"✨",color:"#F06292"},
+  {title:"Build your\nAura.",sub:"Forget followers. Aura Score rewards creativity and real connection.",emoji:"🔮",color:"#FFB74D"},
+];
+
+const REACTIONS=["❤️","🔥","✨","😂","🥹","👏"];
+
+function Glass({children,className="",onClick,style={}}){
+  return <div onClick={onClick} className={className} style={{backdropFilter:"blur(20px)",background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:24,boxShadow:"0 8px 32px rgba(0,0,0,0.3)",cursor:onClick?"pointer":"default",...style}}>{children}</div>;
+}
+
+function GradBtn({children,onClick,style={},small}){
+  return <button onClick={onClick} style={{background:"linear-gradient(135deg,#CE93D8,#F06292)",color:"white",fontWeight:"bold",borderRadius:16,border:"none",padding:small?"8px 16px":"12px 24px",fontSize:small?13:15,cursor:"pointer",boxShadow:"0 4px 20px rgba(206,147,216,0.4)",...style}}>{children}</button>;
+}
+
+function BottomNav({page,setPage}){
+  const items=[{id:"home",icon:"🏠",label:"Home"},{id:"explore",icon:"🔍",label:"Explore"},{id:"reels",icon:"🎬",label:"Reels"},{id:"chat",icon:"💬",label:"Chat"},{id:"profile",icon:"👤",label:"Me"}];
+  return(
+    <div style={{position:"absolute",bottom:0,left:0,right:0,padding:"8px 8px 12px"}}>
+      <Glass style={{display:"flex",justifyContent:"space-around",padding:"8px 4px"}}>
+        {items.map(item=>(
+          <button key={item.id} onClick={()=>setPage(item.id)} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:2,padding:"4px 12px",background:"none",border:"none",cursor:"pointer"}}>
+            <span style={{fontSize:20}}>{item.icon}</span>
+            <span style={{fontSize:9,fontWeight:600,color:page===item.id?"#CE93D8":"rgba(255,255,255,0.4)"}}>{item.label}</span>
+            {page===item.id&&<div style={{width:4,height:4,borderRadius:"50%",background:"#CE93D8"}}/>}
+          </button>
+        ))}
+      </Glass>
+    </div>
+  );
+}
+
+// Floating AI Button
+function FloatingAI({setPage}){
+  const [open,setOpen]=useState(false);
+  const suggestions=["Need a caption? ✍️","Reel ideas? 🎬","Need hashtags? #","Outfit breakdown? 👗","Music recs? 🎵","Find similar creators? 👥"];
+  return(
+    <div style={{position:"absolute",bottom:90,right:16,zIndex:100}}>
+      {open&&(
+        <div style={{position:"absolute",bottom:60,right:0,width:200,display:"flex",flexDirection:"column",gap:8}}>
+          {suggestions.map((s,i)=>(
+            <Glass key={i} onClick={()=>{setPage("ai");setOpen(false);}} style={{padding:"10px 14px",fontSize:12,color:"white",cursor:"pointer",textAlign:"right"}}>
+              {s}
+            </Glass>
+          ))}
+        </div>
+      )}
+      <button onClick={()=>setOpen(!open)} className="animate-float" style={{width:52,height:52,borderRadius:"50%",border:"none",fontSize:24,cursor:"pointer",background:"linear-gradient(135deg,#CE93D8,#F06292)",boxShadow:"0 0 30px rgba(206,147,216,0.6)",display:"flex",alignItems:"center",justifyContent:"center"}}>
+        🔮
+      </button>
+    </div>
+  );
+}
+
+function SplashPage({onDone}){
+  const [show,setShow]=useState(false);
+  useEffect(()=>{setTimeout(()=>setShow(true),300);setTimeout(()=>onDone(),2600);},[]);
+  return(
+    <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"100%",position:"relative",overflow:"hidden"}}>
+      <div style={{position:"absolute",top:"25%",left:"25%",width:200,height:200,borderRadius:"50%",background:"radial-gradient(circle,#CE93D8,transparent)",opacity:0.3,filter:"blur(40px)"}} className="animate-pulse"/>
+      <div style={{position:"absolute",bottom:"25%",right:"25%",width:150,height:150,borderRadius:"50%",background:"radial-gradient(circle,#F06292,transparent)",opacity:0.2,filter:"blur(40px)"}} className="animate-pulse"/>
+      <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:16,transition:"all 0.7s",opacity:show?1:0,transform:show?"translateY(0)":"translateY(32px)"}}>
+        <div className="animate-glow" style={{width:96,height:96,borderRadius:24,display:"flex",alignItems:"center",justifyContent:"center",fontSize:48,background:"linear-gradient(135deg,#CE93D8,#F06292)"}}>🌸</div>
+        <div style={{textAlign:"center"}}>
+          <h1 style={{fontSize:48,fontWeight:900,color:"white",fontFamily:"Georgia,serif",letterSpacing:-2}}>Lovie</h1>
+          <p style={{color:"rgba(255,255,255,0.5)",fontSize:12,letterSpacing:4,textTransform:"uppercase",marginTop:4}}>The home of your true self</p>
+        </div>
+        <div style={{display:"flex",gap:8,marginTop:16}}>
+          {[0,1,2].map(i=><div key={i} className="animate-bounce" style={{width:8,height:8,borderRadius:"50%",background:"#CE93D8",animationDelay:`${i*0.15}s`}}/>)}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function OnboardingPage({setPage}){
+  const [step,setStep]=useState(0);
+  const s=ONBOARDING[step];
+  return(
+    <div style={{display:"flex",flexDirection:"column",height:"100%",padding:"48px 24px 32px",position:"relative",overflow:"hidden"}}>
+      <div style={{position:"absolute",top:0,right:0,width:200,height:200,borderRadius:"50%",background:`radial-gradient(circle,${s.color},transparent)`,opacity:0.2,filter:"blur(40px)"}} className="animate-pulse"/>
+      <div style={{flex:1,display:"flex",flexDirection:"column",justifyContent:"center",alignItems:"center",textAlign:"center",gap:24}}>
+        <div className="animate-bounce" style={{fontSize:80,animationDuration:"3s"}}>{s.emoji}</div>
+        <div>
+          <h2 style={{fontSize:28,fontWeight:900,color:"white",fontFamily:"Georgia,serif",whiteSpace:"pre-line",lineHeight:1.2}}>{s.title}</h2>
+          <p style={{color:"rgba(255,255,255,0.6)",marginTop:12,fontSize:14,lineHeight:1.6}}>{s.sub}</p>
+        </div>
+        <div style={{display:"flex",gap:8}}>
+          {ONBOARDING.map((_,i)=><div key={i} onClick={()=>setStep(i)} style={{borderRadius:99,background:i===step?s.color:"rgba(255,255,255,0.2)",width:i===step?24:8,height:8,transition:"all 0.3s",cursor:"pointer"}}/>)}
+        </div>
+      </div>
+      <div style={{display:"flex",flexDirection:"column",gap:12}}>
+        {step<ONBOARDING.length-1
+          ?<GradBtn onClick={()=>setStep(step+1)} style={{width:"100%",padding:"16px"}}>Continue ✨</GradBtn>
+          :<GradBtn onClick={()=>setPage("login")} style={{width:"100%",padding:"16px"}}>Enter Lovie 🌸</GradBtn>}
+        {step<ONBOARDING.length-1&&<button onClick={()=>setPage("login")} style={{background:"none",border:"none",color:"rgba(255,255,255,0.3)",fontSize:14,cursor:"pointer",padding:8}}>Skip</button>}
+      </div>
+    </div>
+  );
+}
+
+function LoginPage({setPage}){
+  return(
+    <div style={{display:"flex",flexDirection:"column",height:"100%",padding:"40px 24px 32px",position:"relative",overflow:"hidden"}}>
+      <div style={{position:"absolute",top:-80,right:-80,width:200,height:200,borderRadius:"50%",background:"radial-gradient(circle,#CE93D8,transparent)",opacity:0.2,filter:"blur(40px)"}}/>
+      <div style={{textAlign:"center",marginBottom:32}}>
+        <div className="animate-glow" style={{width:64,height:64,margin:"0 auto 16px",borderRadius:16,display:"flex",alignItems:"center",justifyContent:"center",fontSize:28,background:"linear-gradient(135deg,#CE93D8,#F06292)"}}>🌸</div>
+        <h1 style={{fontSize:28,fontWeight:900,color:"white",fontFamily:"Georgia,serif"}}>Lovie</h1>
+        <p style={{color:"rgba(255,255,255,0.4)",fontSize:13,marginTop:4}}>The home of your true self</p>
+      </div>
+      <div style={{display:"flex",flexDirection:"column",gap:12,flex:1}}>
+        <Glass style={{padding:"12px 16px"}}><input style={{width:"100%",background:"transparent",border:"none",color:"white",fontSize:14,outline:"none"}} placeholder="Email or username"/></Glass>
+        <Glass style={{padding:"12px 16px"}}><input type="password" style={{width:"100%",background:"transparent",border:"none",color:"white",fontSize:14,outline:"none"}} placeholder="Password"/></Glass>
+        <GradBtn onClick={()=>setPage("mood")} style={{width:"100%",padding:"16px",marginTop:8}}>Get Started 🌸</GradBtn>
+        <div style={{display:"flex",alignItems:"center",gap:12,margin:"8px 0"}}>
+          <div style={{flex:1,height:1,background:"rgba(255,255,255,0.1)"}}/>
+          <span style={{color:"rgba(255,255,255,0.3)",fontSize:12}}>or continue with</span>
+          <div style={{flex:1,height:1,background:"rgba(255,255,255,0.1)"}}/>
+        </div>
+        <div style={{display:"flex",gap:12}}>
+          {["🍎 Apple","G Google","𝕏 Twitter"].map(s=><Glass key={s} style={{flex:1,padding:"10px",textAlign:"center",fontSize:12,color:"rgba(255,255,255,0.6)"}}>{s}</Glass>)}
+        </div>
+        <p style={{color:"rgba(255,255,255,0.3)",fontSize:12,textAlign:"center",marginTop:8}}>New here? <span style={{color:"#CE93D8",cursor:"pointer"}}>Create account</span></p>
+      </div>
+    </div>
+  );
+}
+
+function MoodPage({setPage,setMood}){
+  const [selected,setSelected]=useState([]);
+  const toggle=(id)=>{
+    setSelected(prev=>prev.includes(id)?prev.filter(x=>x!==id):[...prev,id]);
+  };
+  return(
+    <div style={{display:"flex",flexDirection:"column",height:"100%",padding:"24px 16px 24px"}}>
+      <div style={{textAlign:"center",marginBottom:16}}>
+        <h2 style={{fontSize:22,fontWeight:900,color:"white",fontFamily:"Georgia,serif"}}>What's your vibe? ✨</h2>
+        <p style={{color:"rgba(255,255,255,0.4)",fontSize:13,marginTop:4}}>Select one or more moods</p>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,flex:1,overflowY:"auto"}} className="no-scrollbar">
+        {MOODS.map(m=>{
+          const isSelected=selected.includes(m.id);
+          return(
+            <div key={m.id} onClick={()=>toggle(m.id)} style={{padding:14,borderRadius:20,cursor:"pointer",transition:"all 0.2s",background:m.bg,border:isSelected?`2px solid ${m.color}`:"2px solid transparent",transform:isSelected?"scale(1.03)":"scale(1)",boxShadow:isSelected?`0 0 20px ${m.color}40`:"none"}}>
+              <div style={{fontSize:28,marginBottom:6}}>{m.emoji}</div>
+              <p style={{color:"white",fontWeight:700,fontSize:13}}>{m.label}</p>
+              <p style={{color:"rgba(255,255,255,0.5)",fontSize:10,marginTop:2}}>{m.desc}</p>
+              <div style={{width:32,height:2,borderRadius:99,marginTop:6,background:m.color}}/>
+              {isSelected&&<div style={{position:"absolute",top:8,right:8,width:16,height:16,borderRadius:"50%",background:m.color,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10}}>✓</div>}
+            </div>
+          );
+        })}
+      </div>
+      {selected.length>0&&(
+        <GradBtn onClick={()=>{setMood(MOODS.filter(m=>selected.includes(m.id)));setPage("home");}} style={{width:"100%",padding:"14px",marginTop:12}}>
+          Continue with {selected.length} vibe{selected.length>1?"s":""} →
+        </GradBtn>
+      )}
+    </div>
+  );
+}
+
+function HomePage({setPage,mood,setPage2}){
+  const [liked,setLiked]=useState({});
+  const [saved,setSaved]=useState({});
+  const [showReactions,setShowReactions]=useState({});
+  const [reactions,setReactions]=useState({});
+  const moodLabel=Array.isArray(mood)?mood.map(m=>m.label).join(" + "):mood?.label||"Chill";
+  const moodEmoji=Array.isArray(mood)?mood[0]?.emoji||"🌊":mood?.emoji||"🌊";
+  return(
+    <div style={{display:"flex",flexDirection:"column",height:"100%"}}>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"16px 16px 8px"}}>
+        <div>
+          <h1 style={{fontSize:22,fontWeight:900,color:"white",fontFamily:"Georgia,serif"}}>Lovie <span style={{color:"#CE93D8"}}>✦</span></h1>
+          <p style={{color:"rgba(255,255,255,0.4)",fontSize:11}}>{moodLabel} mode {moodEmoji}</p>
+        </div>
+        <button style={{width:36,height:36,borderRadius:12,border:"1px solid rgba(255,255,255,0.1)",fontSize:16,background:"rgba(255,255,255,0.05)",cursor:"pointer"}}>🔔</button>
+      </div>
+      {/* Stories */}
+      <div style={{display:"flex",gap:12,padding:"0 16px 12px",overflowX:"auto"}} className="no-scrollbar">
+        {[{a:"https://i.pravatar.cc/150?img=1",n:"You"},{a:"https://i.pravatar.cc/150?img=47",n:"aurora"},{a:"https://i.pravatar.cc/150?img=12",n:"neon"},{a:"https://i.pravatar.cc/150?img=32",n:"luna"},{a:"https://i.pravatar.cc/150?img=25",n:"prism"}].map((s,i)=>(
+          <div key={i} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:4,flexShrink:0}}>
+            <div style={{width:52,height:52,borderRadius:16,overflow:"hidden",border:i===0?"2px dashed rgba(255,255,255,0.2)":`2px solid #CE93D8`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,background:i===0?"rgba(255,255,255,0.08)":"transparent"}}>
+              {i===0?"＋":<img src={s.a} style={{width:"100%",height:"100%",objectFit:"cover"}}/>}
+            </div>
+            <span style={{color:"rgba(255,255,255,0.5)",fontSize:9}}>{s.n}</span>
+          </div>
+        ))}
+      </div>
+      {/* For You Section */}
+      <div style={{padding:"0 16px 8px"}}>
+        <p style={{color:"rgba(255,255,255,0.4)",fontSize:11,textTransform:"uppercase",letterSpacing:2,marginBottom:6}}>✦ For your current vibe</p>
+      </div>
+      <div style={{flex:1,overflowY:"auto",padding:"0 16px 96px",display:"flex",flexDirection:"column",gap:16}} className="no-scrollbar">
+        {POSTS.map(post=>(
+          <Glass key={post.id} style={{overflow:"hidden"}}>
+            {/* Post Image */}
+            <div style={{height:200,position:"relative",overflow:"hidden"}}>
+              <img src={post.img} style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+              <div style={{position:"absolute",inset:0,background:"linear-gradient(to bottom,transparent 50%,rgba(0,0,0,0.5))"}}/>
+              <div style={{position:"absolute",top:12,left:12,fontSize:10,fontWeight:700,padding:"4px 8px",borderRadius:99,background:"rgba(0,0,0,0.4)",color:"white",backdropFilter:"blur(4px)"}}>{post.tag}</div>
+              <div style={{position:"absolute",top:12,right:12,padding:"4px 8px",borderRadius:99,background:"rgba(0,0,0,0.4)",backdropFilter:"blur(4px)",display:"flex",alignItems:"center",gap:4}}>
+                <span style={{fontSize:10,color:"#CE93D8"}}>🔮</span>
+                <span style={{fontSize:10,color:"white",fontWeight:700}}>{post.aura.toLocaleString()}</span>
+              </div>
+            </div>
+            <div style={{padding:12}}>
+              {/* Creator */}
+              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+                <img src={post.avatar} style={{width:28,height:28,borderRadius:10,objectFit:"cover"}}/>
+                <span style={{color:"white",fontSize:12,fontWeight:600}}>@{post.user}</span>
+                <span style={{color:"rgba(255,255,255,0.3)",fontSize:10,marginLeft:"auto"}}>2h</span>
+              </div>
+              <p style={{color:"rgba(255,255,255,0.7)",fontSize:12,marginBottom:12,lineHeight:1.5}}>{post.caption}</p>
+              {/* Reactions */}
+              {showReactions[post.id]&&(
+                <div style={{display:"flex",gap:8,marginBottom:8,padding:"8px",borderRadius:16,background:"rgba(255,255,255,0.05)"}}>
+                  {REACTIONS.map(r=>(
+                    <button key={r} onClick={()=>{setReactions(prev=>({...prev,[post.id]:r}));setShowReactions(prev=>({...prev,[post.id]:false}));}} style={{fontSize:20,background:"none",border:"none",cursor:"pointer"}}>{r}</button>
+                  ))}
+                </div>
+              )}
+              {/* Actions */}
+              <div style={{display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
+                <button onLongPress={()=>setShowReactions(p=>({...p,[post.id]:true}))} onClick={()=>{if(!reactions[post.id])setShowReactions(p=>({...p,[post.id]:!p[post.id]}));else setLiked(l=>({...l,[post.id]:!l[post.id]}));}} style={{display:"flex",alignItems:"center",gap:4,background:"none",border:"none",cursor:"pointer",color:"rgba(255,255,255,0.6)",fontSize:11}}>
+                  <span style={{fontSize:16}}>{reactions[post.id]||"🤍"}</span>{(post.likes+(liked[post.id]?1:0)).toLocaleString()}
+                </button>
+                <button style={{display:"flex",alignItems:"center",gap:4,background:"none",border:"none",cursor:"pointer",color:"rgba(255,255,255,0.6)",fontSize:11}}><span style={{fontSize:16}}>💬</span>{post.comments}</button>
+                <button onClick={()=>setSaved(s=>({...s,[post.id]:!s[post.id]}))} style={{display:"flex",alignItems:"center",gap:4,background:"none",border:"none",cursor:"pointer",color:saved[post.id]?"#CE93D8":"rgba(255,255,255,0.6)",fontSize:11}}><span style={{fontSize:16}}>{saved[post.id]?"🔖":"📌"}</span>{post.saves.toLocaleString()}</button>
+                <button style={{display:"flex",alignItems:"center",gap:4,background:"none",border:"none",cursor:"pointer",color:"rgba(255,255,255,0.6)",fontSize:11}}><span style={{fontSize:16}}>🔁</span>{post.reposts}</button>
+                <button style={{display:"flex",alignItems:"center",gap:4,background:"none",border:"none",cursor:"pointer",color:"rgba(255,255,255,0.6)",fontSize:11}}><span style={{fontSize:16}}>↗️</span></button>
+              </div>
+            </div>
+          </Glass>
+        ))}
+      </div>
+      <FloatingAI setPage={setPage}/>
+    </div>
+  );
+}
+
+function ExplorePage(){
+  return(
+    <div style={{display:"flex",flexDirection:"column",height:"100%"}}>
+      <div style={{padding:"16px 16px 8px",display:"flex",alignItems:"center",justifyContent:"center"}}>
+        <span style={{color:"white",fontWeight:700,fontSize:18}}>Explore 🔍</span>
+      </div>
+      <div style={{padding:"0 16px 12px"}}>
+        <Glass style={{padding:"10px 16px",display:"flex",alignItems:"center",gap:8}}>
+          <span style={{color:"rgba(255,255,255,0.3)"}}>🔍</span>
+          <input style={{flex:1,background:"transparent",border:"none",color:"white",fontSize:13,outline:"none"}} placeholder="Search vibes, creators, moods..."/>
+        </Glass>
+      </div>
+      {/* For You Section */}
+      <div style={{padding:"0 16px 8px"}}>
+        <p style={{color:"rgba(255,255,255,0.5)",fontSize:11,textTransform:"uppercase",letterSpacing:2}}>✦ For your current vibe</p>
+      </div>
+      <div style={{flex:1,overflowY:"auto",padding:"0 16px 96px"}} className="no-scrollbar">
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+          {EXPLORE_ITEMS.map((item,i)=>(
+            <Glass key={i} style={{overflow:"hidden",gridColumn:item.large?"span 2":"span 1",height:item.large?140:item.medium?110:88,cursor:"pointer"}}>
+              <div style={{width:"100%",height:"100%",background:item.bg,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:4,position:"relative"}}>
+                <span style={{fontSize:item.large?32:24}}>{item.emoji}</span>
+                <span style={{color:"white",fontWeight:700,fontSize:item.large?15:12}}>#{item.label}</span>
+                <span style={{color:"rgba(255,255,255,0.7)",fontSize:10,padding:"2px 8px",borderRadius:99,background:"rgba(0,0,0,0.2)"}}>{item.members}</span>
+              </div>
+            </Glass>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ReelsPage({setPage}){
+  const [cur,setCur]=useState(0);
+  const [liked,setLiked]=useState({});
+  const [saved,setSaved]=useState({});
+  const [showAskAI,setShowAskAI]=useState(false);
+  const r=REELS[cur];
+  const aiOptions=["Outfit breakdown 👗","Caption suggestions ✍️","Music recommendations 🎵","Find similar creators 👥"];
+  return(
+    <div style={{position:"relative",height:"100%",overflow:"hidden"}}>
+      <div style={{position:"absolute",inset:0}}>
+        <img src={r.img} style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+        <div style={{position:"absolute",inset:0,background:r.bg,opacity:0.7}}/>
+      </div>
+      {/* Ask AI Panel */}
+      {showAskAI&&(
+        <div style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.7)",zIndex:50,display:"flex",flexDirection:"column",justifyContent:"flex-end",padding:"24px 16px 96px"}}>
+          <Glass style={{padding:16}}>
+            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}>
+              <span style={{fontSize:20}}>🔮</span>
+              <p style={{color:"white",fontWeight:700,fontSize:15}}>Ask Lovie AI</p>
+              <button onClick={()=>setShowAskAI(false)} style={{marginLeft:"auto",background:"none",border:"none",color:"rgba(255,255,255,0.5)",fontSize:18,cursor:"pointer"}}>✕</button>
+            </div>
+            {aiOptions.map((opt,i)=>(
+              <button key={i} onClick={()=>{setPage("ai");setShowAskAI(false);}} style={{width:"100%",padding:"10px 14px",marginBottom:8,borderRadius:12,border:"1px solid rgba(255,255,255,0.1)",background:"rgba(255,255,255,0.05)",color:"white",fontSize:13,cursor:"pointer",textAlign:"left"}}>{opt}</button>
+            ))}
+          </Glass>
+        </div>
+      )}
+      <div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",justifyContent:"flex-end",padding:"16px 16px 96px"}}>
+        <div style={{display:"flex",alignItems:"flex-end",justifyContent:"space-between"}}>
+          <div style={{flex:1,marginRight:16}}>
+            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
+              <img src={r.avatar} style={{width:32,height:32,borderRadius:10,objectFit:"cover",border:"2px solid #CE93D8"}}/>
+              <p style={{color:"white",fontWeight:700,fontSize:13}}>@{r.user}</p>
+            </div>
+            <p style={{color:"rgba(255,255,255,0.8)",fontSize:12,lineHeight:1.5,marginBottom:8}}>{r.caption}</p>
+            <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+              <span style={{fontSize:11,padding:"4px 10px",borderRadius:99,background:"rgba(255,255,255,0.2)",color:"white"}}>{r.tag}</span>
+              <button onClick={()=>setShowAskAI(true)} style={{fontSize:11,padding:"4px 10px",borderRadius:99,border:"none",background:"linear-gradient(135deg,#CE93D8,#F06292)",color:"white",fontWeight:700,cursor:"pointer"}}>🔮 Ask AI</button>
+            </div>
+          </div>
+          <div style={{display:"flex",flexDirection:"column",gap:14,alignItems:"center"}}>
+            <button onClick={()=>setLiked(l=>({...l,[cur]:!l[cur]}))} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:2,background:"none",border:"none",cursor:"pointer"}}>
+              <span style={{fontSize:22}}>{liked[cur]?"❤️":"🤍"}</span>
+              <span style={{color:"white",fontSize:10}}>{r.likes}</span>
+            </button>
+            <button style={{display:"flex",flexDirection:"column",alignItems:"center",gap:2,background:"none",border:"none",cursor:"pointer"}}>
+              <span style={{fontSize:22}}>💬</span>
+              <span style={{color:"white",fontSize:10}}>{r.comments}</span>
+            </button>
+            <button onClick={()=>setSaved(s=>({...s,[cur]:!s[cur]}))} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:2,background:"none",border:"none",cursor:"pointer"}}>
+              <span style={{fontSize:22}}>{saved[cur]?"🔖":"📌"}</span>
+              <span style={{color:"white",fontSize:10}}>{r.saves}</span>
+            </button>
+            <button style={{display:"flex",flexDirection:"column",alignItems:"center",gap:2,background:"none",border:"none",cursor:"pointer"}}>
+              <span style={{fontSize:22}}>🔁</span>
+              <span style={{color:"white",fontSize:10}}>{r.reposts}</span>
+            </button>
+            <button style={{display:"flex",flexDirection:"column",alignItems:"center",gap:2,background:"none",border:"none",cursor:"pointer"}}>
+              <span style={{fontSize:22}}>📖</span>
+              <span style={{color:"white",fontSize:10}}>Story</span>
+            </button>
+            <button style={{display:"flex",flexDirection:"column",alignItems:"center",gap:2,background:"none",border:"none",cursor:"pointer"}}>
+              <span style={{fontSize:22}}>⚡</span>
+              <span style={{color:"white",fontSize:10}}>Boost</span>
+            </button>
+            <button style={{display:"flex",flexDirection:"column",alignItems:"center",gap:2,background:"none",border:"none",cursor:"pointer"}}>
+              <span style={{fontSize:22}}>↗️</span>
+              <span style={{color:"white",fontSize:10}}>Share</span>
+            </button>
+          </div>
+        </div>
+        {/* Similar Creators */}
+        <div style={{marginTop:12}}>
+          <p style={{color:"rgba(255,255,255,0.5)",fontSize:10,marginBottom:6}}>Similar creators</p>
+          <div style={{display:"flex",gap:8}}>
+            {[47,12,32].map((img,i)=>(
+              <div key={i} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:2}}>
+                <img src={`https://i.pravatar.cc/150?img=${img}`} style={{width:36,height:36,borderRadius:10,objectFit:"cover",border:"2px solid rgba(206,147,216,0.5)"}}/>
+                <span style={{color:"rgba(255,255,255,0.5)",fontSize:9}}>creator{i+1}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div style={{position:"absolute",top:"50%",right:12,transform:"translateY(-50%)",display:"flex",flexDirection:"column",gap:6}}>
+        {REELS.map((_,i)=><div key={i} onClick={()=>setCur(i)} style={{width:3,borderRadius:99,background:i===cur?"white":"rgba(255,255,255,0.3)",height:i===cur?28:8,transition:"all 0.3s",cursor:"pointer"}}/>)}
+      </div>
+      <div style={{position:"absolute",top:0,left:0,right:0,display:"flex",alignItems:"center",justifyContent:"space-between",padding:16}}>
+        <span style={{color:"white",fontWeight:700,fontSize:18,fontFamily:"Georgia,serif"}}>Reels</span>
+      </div>
+    </div>
+  );
+}
+
+function ChatPage({setPage}){
+  const [active,setActive]=useState(null);
+  const [filter,setFilter]=useState("all");
+  const [pinned,setPinned]=useState([1]);
+  const [msg,setMsg]=useState("");
+  const [messages,setMessages]=useState([
+    {from:"them",text:"omg your aura score is INSANE 🔮",type:"text"},
+    {from:"me",text:"haha thank you!! been posting every day ✨",type:"text"},
+    {from:"them",text:"collab reel?? I have a vision 🎬",type:"text"},
+  ]);
+
+  if(active){
+    const chat=CHATS.find(c=>c.id===active);
+    return(
+      <div style={{display:"flex",flexDirection:"column",height:"100%"}}>
+        <div style={{display:"flex",alignItems:"center",gap:12,padding:"16px",borderBottom:"1px solid rgba(255,255,255,0.05)"}}>
+          <button onClick={()=>setActive(null)} style={{background:"none",border:"none",color:"rgba(255,255,255,0.6)",fontSize:20,cursor:"pointer"}}>‹</button>
+          {typeof chat.avatar==="string"&&chat.avatar.startsWith("http")
+            ?<img src={chat.avatar} style={{width:36,height:36,borderRadius:12,objectFit:"cover"}}/>
+            :<div style={{width:36,height:36,borderRadius:12,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,background:"linear-gradient(135deg,#CE93D8,#F06292)"}}>{chat.avatar}</div>
+          }
+          <div style={{flex:1}}>
+            <p style={{color:"white",fontWeight:600,fontSize:13}}>{chat.user}</p>
+            {chat.note&&<p style={{fontSize:10,color:"rgba(255,255,255,0.4)"}}>📝 {chat.note}</p>}
+            {chat.song&&<p style={{fontSize:10,color:"#CE93D8"}}>🎵 {chat.song}</p>}
+          </div>
+          <div style={{display:"flex",gap:8}}>
+            <button style={{width:32,height:32,borderRadius:10,border:"1px solid rgba(255,255,255,0.1)",background:"rgba(255,255,255,0.05)",cursor:"pointer",fontSize:14}}>📞</button>
+            <button style={{width:32,height:32,borderRadius:10,border:"1px solid rgba(255,255,255,0.1)",background:"rgba(255,255,255,0.05)",cursor:"pointer",fontSize:14}}>📹</button>
+          </div>
+        </div>
+        <div style={{flex:1,overflowY:"auto",padding:16,display:"flex",flexDirection:"column",gap:12,paddingBottom:80}} className="no-scrollbar">
+          {messages.map((m,i)=>(
+            <div key={i} style={{display:"flex",justifyContent:m.from==="me"?"flex-end":"flex-start"}}>
+              {m.type==="image"
+                ?<img src={m.text} style={{maxWidth:"75%",borderRadius:16,objectFit:"cover"}}/>
+                :<div style={{maxWidth:"75%",padding:"10px 14px",borderRadius:18,fontSize:13,background:m.from==="me"?"linear-gradient(135deg,#CE93D8,#F06292)":"rgba(255,255,255,0.08)",color:"white",border:m.from==="me"?"none":"1px solid rgba(255,255,255,0.1)"}}>{m.text}</div>
+              }
+            </div>
+          ))}
+        </div>
+        <div style={{padding:"0 16px 24px"}}>
+          <Glass style={{display:"flex",alignItems:"center",gap:8,padding:"8px 12px"}}>
+            <button style={{background:"none",border:"none",cursor:"pointer",fontSize:18}}>📷</button>
+            <input value={msg} onChange={e=>setMsg(e.target.value)} onKeyDown={e=>e.key==="Enter"&&msg.trim()&&(setMessages(m=>[...m,{from:"me",text:msg,type:"text"}]),setMsg(""))} style={{flex:1,background:"transparent",border:"none",color:"white",fontSize:13,outline:"none"}} placeholder="Message..."/>
+            <button style={{background:"none",border:"none",cursor:"pointer",fontSize:18}}>🎤</button>
+            <button onClick={()=>msg.trim()&&(setMessages(m=>[...m,{from:"me",text:msg,type:"text"}]),setMsg(""))} style={{width:32,height:32,borderRadius:10,border:"none",background:"linear-gradient(135deg,#CE93D8,#F06292)",cursor:"pointer",color:"white",fontSize:14}}>↑</button>
+          </Glass>
+        </div>
+      </div>
+    );
+  }
+
+  return(
+    <div style={{display:"flex",flexDirection:"column",height:"100%"}}>
+      <div style={{padding:"16px",display:"flex",alignItems:"center",justifyContent:"center"}}>
+        <span style={{color:"white",fontWeight:700,fontSize:18}}>Messages 💬</span>
+      </div>
+      <div style={{padding:"0 16px 10px"}}>
+        <Glass style={{padding:"10px 16px",display:"flex",alignItems:"center",gap:8}}>
+          <span style={{color:"rgba(255,255,255,0.3)"}}>🔍</span>
+          <input style={{flex:1,background:"transparent",border:"none",color:"white",fontSize:13,outline:"none"}} placeholder="Search conversations..."/>
+        </Glass>
+      </div>
+      {/* Filter Tabs */}
+      <div style={{display:"flex",gap:8,padding:"0 16px 10px"}}>
+        {["All","Unread","Groups"].map(f=>(
+          <button key={f} onClick={()=>setFilter(f.toLowerCase())} style={{padding:"6px 14px",borderRadius:20,border:"none",fontSize:12,fontWeight:600,cursor:"pointer",background:filter===f.toLowerCase()?"linear-gradient(135deg,#CE93D8,#F06292)":"rgba(255,255,255,0.05)",color:filter===f.toLowerCase()?"white":"rgba(255,255,255,0.4)"}}>
+            {f}
+          </button>
+        ))}
+      </div>
+      <div style={{flex:1,overflowY:"auto",padding:"0 16px 96px",display:"flex",flexDirection:"column",gap:8}} className="no-scrollbar">
+        {CHATS.map(c=>(
+          <Glass key={c.id} onClick={()=>setActive(c.id)} style={{display:"flex",alignItems:"center",gap:12,padding:12,position:"relative"}}>
+            {pinned.includes(c.id)&&<div style={{position:"absolute",top:8,right:8,fontSize:10}}>📌</div>}
+            <div style={{position:"relative"}}>
+              {typeof c.avatar==="string"&&c.avatar.startsWith("http")
+                ?<img src={c.avatar} style={{width:44,height:44,borderRadius:14,objectFit:"cover"}}/>
+                :<div style={{width:44,height:44,borderRadius:14,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,background:"linear-gradient(135deg,#CE93D8,#F06292)"}}>{c.avatar}</div>
+              }
+              {c.online&&<div style={{position:"absolute",bottom:-2,right:-2,width:12,height:12,borderRadius:"50%",background:"#4ade80",border:"2px solid #0a0a0f"}}/>}
+            </div>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <p style={{color:"white",fontWeight:600,fontSize:13}}>{c.user}</p>
+                <span style={{color:"rgba(255,255,255,0.3)",fontSize:10}}>{c.time}</span>
+              </div>
+              {c.note&&<p style={{color:"#CE93D8",fontSize:10,marginBottom:1}}>📝 {c.note}</p>}
+              {c.song&&<p style={{color:"rgba(255,255,255,0.4)",fontSize:10,marginBottom:1}}>🎵 {c.song}</p>}
+              <p style={{color:"rgba(255,255,255,0.4)",fontSize:12,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.msg}</p>
+            </div>
+            {c.unread>0&&<div style={{width:20,height:20,borderRadius:"50%",background:"linear-gradient(135deg,#CE93D8,#F06292)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:700,color:"white"}}>{c.unread}</div>}
+          </Glass>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ProfilePage({setPage}){
+  return(
+    <div style={{display:"flex",flexDirection:"column",height:"100%",overflowY:"auto",paddingBottom:96}} className="no-scrollbar">
+      <div style={{height:120,background:"linear-gradient(135deg,rgba(206,147,216,0.6),rgba(240,98,146,0.6))",position:"relative"}}>
+        <div style={{position:"absolute",bottom:0,left:0,right:0,height:60,background:"linear-gradient(to top,#0a0a0f,transparent)"}}/>
+      </div>
+      <div style={{padding:"0 16px"}}>
+        <div style={{display:"flex",alignItems:"flex-end",justifyContent:"space-between",marginTop:-40,marginBottom:12}}>
+          <img src="https://i.pravatar.cc/150?img=47" style={{width:80,height:80,borderRadius:20,objectFit:"cover",border:"4px solid #0a0a0f",boxShadow:"0 0 30px rgba(206,147,216,0.5)"}}/>
+          <GradBtn small style={{marginTop:8}}>Edit Profile</GradBtn>
+        </div>
+        <h2 style={{color:"white",fontWeight:900,fontSize:20,fontFamily:"Georgia,serif"}}>aurora.vibe</h2>
+        <p style={{color:"rgba(255,255,255,0.5)",fontSize:12,margin:"2px 0"}}>@aurora.vibe · she/her</p>
+        {/* Profile Song */}
+        <Glass style={{padding:"8px 12px",marginTop:8,marginBottom:8,display:"flex",alignItems:"center",gap:8}}>
+          <span style={{fontSize:16}}>🎵</span>
+          <div>
+            <p style={{color:"white",fontSize:11,fontWeight:600}}>Espresso — Sabrina Carpenter</p>
+            <p style={{color:"rgba(255,255,255,0.3)",fontSize:10}}>Profile song</p>
+          </div>
+          <div style={{marginLeft:"auto",width:24,height:24,borderRadius:"50%",background:"linear-gradient(135deg,#CE93D8,#F06292)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10}}>▶</div>
+        </Glass>
+        {/* Note */}
+        <Glass style={{padding:"8px 12px",marginBottom:8}}>
+          <p style={{color:"rgba(255,255,255,0.4)",fontSize:10,marginBottom:2}}>📝 Note</p>
+          <p style={{color:"white",fontSize:12}}>feeling aesthetic rn, new reel dropping tonight ✨</p>
+        </Glass>
+        <p style={{color:"rgba(255,255,255,0.7)",fontSize:13,margin:"8px 0 12px",lineHeight:1.5}}>✨ Gen Z creator · fashion + AI + late nights 🌙</p>
+        {/* Aura Score */}
+        <Glass style={{padding:12,marginBottom:16,background:"rgba(206,147,216,0.05)"}}>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+            <div style={{display:"flex",alignItems:"center",gap:8}}>
+              <span style={{fontSize:24}}>🔮</span>
+              <div>
+                <p style={{color:"rgba(255,255,255,0.4)",fontSize:10,textTransform:"uppercase",letterSpacing:2}}>Aura Score</p>
+                <p style={{color:"white",fontWeight:900,fontSize:24}}>9,842</p>
+              </div>
+            </div>
+            <div style={{textAlign:"right"}}>
+              <p style={{color:"#4ade80",fontSize:11}}>↑ +234 this week</p>
+              <p style={{color:"rgba(255,255,255,0.3)",fontSize:10}}>Top 2% Creator</p>
+            </div>
+          </div>
+        </Glass>
+        {/* Stats */}
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:16}}>
+          {[["842","Posts"],["128K","Followers"],["$4.2K","Earned"]].map(([v,l])=>(
+            <Glass key={l} style={{padding:10,textAlign:"center"}}>
+              <p style={{color:"white",fontWeight:900,fontSize:16}}>{v}</p>
+              <p style={{color:"rgba(255,255,255,0.4)",fontSize:10}}>{l}</p>
+            </Glass>
+          ))}
+        </div>
+        {/* Grid */}
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:6}}>
+          {[47,12,32,25,1,5,8,15,20].map((img,i)=>(
+            <div key={i} style={{aspectRatio:"1",borderRadius:12,overflow:"hidden"}}>
+              <img src={`https://images.unsplash.com/photo-${1483985988355+i*1000000}?w=200&q=80`} style={{width:"100%",height:"100%",objectFit:"cover"}} onError={(e)=>{e.target.style.background=`linear-gradient(135deg,#CE93D8,#F06292)`;}}/>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AIPage(){
+  const [input,setInput]=useState("");
+  const [history,setHistory]=useState([]);
+  const [loading,setLoading]=useState(false);
+
+  async function askAI(){
+    if(!input.trim())return;
+    const userMsg=input;
+    setInput("");
+    setLoading(true);
+    setHistory(h=>[...h,{from:"user",text:userMsg}]);
+    try{
+      const res=await fetch("https://api.anthropic.com/v1/messages",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+          model:"claude-sonnet-4-20250514",
+          max_tokens:1000,
+          system:"You are Lovie AI — a futuristic, emotionally intelligent Gen Z creator assistant built into Lovie, an AI-powered social media app. Help creators with captions, hashtags, content ideas, reel scripts, aesthetic themes, outfit breakdowns, music recommendations, and growth advice. Be warm, expressive, and Gen Z-coded. Use emojis naturally. Keep responses concise and energetic.",
+          messages:[...history.map(h=>({role:h.from==="user"?"user":"assistant",content:h.text})),{role:"user",content:userMsg}],
+        })
+      });
+      const data=await res.json();
+      const text=data.content?.[0]?.text||"something went wrong bestie 😔";
+      setHistory(h=>[...h,{from:"ai",text}]);
+    }catch{
+      setHistory(h=>[...h,{from:"ai",text:"oops! connection issue ✨"}]);
+    }
+    setLoading(false);
+  }
+
+  const suggestions=[
+    {icon:"✍️",title:"Need a caption?",desc:"Get viral captions instantly"},
+    {icon:"🎬",title:"Reel ideas?",desc:"Trending concepts for your niche"},
+    {icon:"#️⃣",title:"Need hashtags?",desc:"Top tags matched to your vibe"},
+    {icon:"👗",title:"Outfit breakdown?",desc:"AI analyzes any look"},
+    {icon:"🎵",title:"Music recommendations?",desc:"Perfect tracks for your content"},
+    {icon:"👥",title:"Find similar creators?",desc:"Discover your creator tribe"},
+  ];
+
+  return(
+    <div style={{display:"flex",flexDirection:"column",height:"100%"}}>
+      <div style={{padding:"16px",display:"flex",alignItems:"center",gap:12}}>
+        <div style={{width:40,height:40,borderRadius:12,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,background:"linear-gradient(135deg,#CE93D8,#F06292)"}}>🔮</div>
+        <div>
+          <h2 style={{color:"white",fontWeight:900,fontSize:18,fontFamily:"Georgia,serif"}}>Lovie AI</h2>
+          <p style={{color:"#4ade80",fontSize:10}}>● Your creator assistant · always on</p>
+        </div>
+      </div>
+      {history.length===0&&(
+        <div style={{padding:"0 16px 16px",display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+          {suggestions.map((s,i)=>(
+            <Glass key={i} onClick={()=>setInput(s.title)} style={{padding:12,cursor:"pointer"}}>
+              <span style={{fontSize:20,display:"block",marginBottom:4}}>{s.icon}</span>
+              <p style={{color:"white",fontSize:12,fontWeight:600}}>{s.title}</p>
+              <p style={{color:"rgba(255,255,255,0.4)",fontSize:10,marginTop:2}}>{s.desc}</p>
+            </Glass>
+          ))}
+        </div>
+      )}
+      <div style={{flex:1,overflowY:"auto",padding:"0 16px",display:"flex",flexDirection:"column",gap:12,paddingBottom:16}} className="no-scrollbar">
+        {history.map((m,i)=>(
+          <div key={i} style={{display:"flex",justifyContent:m.from==="user"?"flex-end":"flex-start",gap:8,alignItems:"flex-start"}}>
+            {m.from==="ai"&&<div style={{width:28,height:28,borderRadius:8,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,background:"linear-gradient(135deg,#CE93D8,#F06292)"}}>🔮</div>}
+            <Glass style={{maxWidth:"80%",padding:"10px 14px",fontSize:13,lineHeight:1.6,color:m.from==="user"?"white":"rgba(255,255,255,0.85)",background:m.from==="user"?"linear-gradient(135deg,#CE93D8,#F06292)":"rgba(255,255,255,0.05)",border:m.from==="user"?"none":"1px solid rgba(255,255,255,0.1)"}}>
+              {m.text}
+            </Glass>
+          </div>
+        ))}
+        {loading&&(
+          <div style={{display:"flex",gap:8,alignItems:"center"}}>
+            <div style={{width:28,height:28,borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,background:"linear-gradient(135deg,#CE93D8,#F06292)"}}>🔮</div>
+            <Glass style={{padding:"12px 16px",display:"flex",gap:6,alignItems:"center"}}>
+              {[0,1,2].map(i=><div key={i} className="animate-bounce" style={{width:6,height:6,borderRadius:"50%",background:"#CE93D8",animationDelay:`${i*0.15}s`}}/>)}
+            </Glass>
+          </div>
+        )}
+      </div>
+      <div style={{padding:"0 16px 24px"}}>
+        <Glass style={{display:"flex",alignItems:"center",gap:8,padding:"10px 14px"}}>
+          <input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&askAI()} style={{flex:1,background:"transparent",border:"none",color:"white",fontSize:13,outline:"none"}} placeholder="Ask Lovie AI anything ✨"/>
+          <button onClick={askAI} disabled={loading} style={{width:36,height:36,borderRadius:10,border:"none",background:"linear-gradient(135deg,#CE93D8,#F06292)",cursor:"pointer",color:"white",fontSize:14}}>↑</button>
+        </Glass>
+      </div>
+    </div>
+  );
+}
+
+function App(){
+  const [page,setPage]=useState("splash");
+  const [mood,setMood]=useState(null);
+  const showNav=["home","explore","reels","chat","profile"].includes(page);
+  const showFloating=["home","explore","reels","profile"].includes(page);
+
+  const renderPage=()=>{
+    switch(page){
+      case "splash":return <SplashPage onDone={()=>setPage("onboarding")}/>;
+      case "onboarding":return <OnboardingPage setPage={setPage}/>;
+      case "login":return <LoginPage setPage={setPage}/>;
+      case "mood":return <MoodPage setPage={setPage} setMood={setMood}/>;
+      case "home":return <HomePage setPage={setPage} mood={mood}/>;
+      case "explore":return <ExplorePage/>;
+      case "reels":return <ReelsPage setPage={setPage}/>;
+      case "chat":return <ChatPage setPage={setPage}/>;
+      case "profile":return <ProfilePage setPage={setPage}/>;
+      case "ai":return <AIPage/>;
+      default:return <HomePage setPage={setPage} mood={mood}/>;
+    }
+  };
+
+  return(
+    <div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"100vh",background:"#050508"}}>
+      <div style={{position:"relative",width:390,height:844,borderRadius:48,overflow:"hidden",border:"1px solid rgba(255,255,255,0.1)",background:"#0a0a0f",boxShadow:"0 0 80px rgba(206,147,216,0.15),0 40px 80px rgba(0,0,0,0.6)"}}>
+        {!["splash","onboarding"].includes(page)&&(
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 24px 4px"}}>
+            <span style={{color:"rgba(255,255,255,0.6)",fontSize:12,fontWeight:500}}>9:41</span>
+            <div style={{width:96,height:24,borderRadius:99,background:"black",position:"absolute",left:"50%",transform:"translateX(-50%)",top:4}}/>
+            <span style={{color:"rgba(255,255,255,0.6)",fontSize:12}}>🔋 84%</span>
+          </div>
+        )}
+        {!["splash","onboarding","login","mood"].includes(page)&&!showNav&&(
+          <div style={{display:"flex",gap:6,padding:"4px 12px 8px",overflowX:"auto"}} className="no-scrollbar">
+            {[["🔮","ai","AI Assistant"],["⚙️","settings","Settings"]].map(([emoji,id,label])=>(
+              <button key={id} onClick={()=>setPage(id)} style={{flexShrink:0,display:"flex",alignItems:"center",gap:4,padding:"6px 12px",borderRadius:12,border:"none",fontSize:12,fontWeight:600,cursor:"pointer",background:page===id?"linear-gradient(135deg,#CE93D8,#F06292)":"rgba(255,255,255,0.05)",color:page===id?"white":"rgba(255,255,255,0.4)"}}>
+                {emoji} {label}
+              </button>
+            ))}
+          </div>
+        )}
+        <div style={{height:"100%",overflow:"hidden"}}>
+          {renderPage()}
+        </div>
+        {showNav&&<BottomNav page={page} setPage={setPage}/>}
+        {showFloating&&<FloatingAI setPage={setPage}/>}
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
